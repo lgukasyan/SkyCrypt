@@ -13,12 +13,9 @@ func main() {
 	// Load environmental variables
 	config.LoadEnv()
 
-	// Database connection
-	var db mongodb.IDatabaseInterfaceProtocol = mongodb.NewMongoClient(os.Getenv("MONGODB_URI"), os.Getenv("DB_NAME"))
-	db.Connect()
-
-	// Database close
-	defer db.Disconnect()
+	// Connect & disconnect database
+	var options mongodb.IDatabaseInterfaceProtocol = mongodb.NewMongoClient(os.Getenv("MONGODB_URI"))
+	defer options.Disconnect(options.Connect())
 
 	// Router API
 	var router *gin.Engine = gin.Default()
