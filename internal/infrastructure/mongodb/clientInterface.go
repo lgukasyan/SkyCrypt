@@ -1,7 +1,8 @@
 package mongodb
 
-type IDatabaseInterfaceProtocol interface {
-	Connect()
-	Disconnect()
-}
+import "go.mongodb.org/mongo-driver/mongo"
 
+type IDatabaseInterfaceProtocol interface {
+	Connect() *mongo.Client
+	Disconnect(*mongo.Client)
+}

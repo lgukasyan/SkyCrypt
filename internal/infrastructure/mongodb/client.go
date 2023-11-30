@@ -3,61 +3,40 @@ package mongodb
 import (
 	"context"
 	"log"
-	"sync"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	client *mongo.Client
-  once   sync.Once
-)
-
 type MongoClient struct {
-	Options *options.ClientOptions
-	DBname  string
+	options *options.ClientOptions
 }
 
-func NewMongoClient(uri string, dbName string) IDatabaseInterfaceProtocol {
+func NewMongoClient(uri string) (IDatabaseInterfaceProtocol) {
 	return &MongoClient{
-		Options: options.Client().ApplyURI(uri),
-		DBname: dbName,
+		options: options.Client().ApplyURI(uri),
 	}
 }
 
-func (conn *MongoClient) Connect() {
-	once.Do(func() {
-		var err error
-		client, err = mongo.Connect(context.TODO(), conn.Options)
-		
-		if err != nil {
-			log.Fatalf(err.Error())
-			return
-		}
+func (conn *MongoClient) Connect() (*mongo.Client) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
+	defer cancel()
 
-		log.Println("[mongodb]: successfully connected.")
-	})
-}
-
-func (conn *MongoClient) Disconnect() {
-	if client == nil {
-		return
+	client, err := mongo.Connect(ctx, conn.options)
+	if err != nil {
+		panic(err)
 	}
 
-	if err := client.Disconnect(context.TODO()); err != nil {
-		log.Fatal(err.Error())
-		return
-	}
-
-	log.Println("[mongodb]: connection to mongodb closed.")
-}
-
-func GetMongoClientInstance() *mongo.Client {
-	if client == nil {
-		log.Fatal("[mongodb]: client is not initialized.")
-		return nil
-	}
-
+	log.Println("[mongodb]: successful connection to the database.")
 	return client
 }
+
+func (conn *MongoClient) Disconnect(client *mongo.Client) {
+	if err := client.Disconnect(context.TODO()); err != nil {
+		panic(err)
+	}
+}
+
+
+
