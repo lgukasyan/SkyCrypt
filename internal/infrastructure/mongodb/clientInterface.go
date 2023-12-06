@@ -1,8 +1,13 @@
 package mongodb
 
-import "go.mongodb.org/mongo-driver/mongo"
+import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/mongo"
+)
 
 type IDatabaseInterfaceProtocol interface {
-	Connect() *mongo.Client
-	Disconnect(*mongo.Client)
+	Connect(context.Context, string) error
+	Disconnect()
+	GetDatabase() *mongo.Database
 }
