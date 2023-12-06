@@ -2,24 +2,23 @@ package mongodb
 
 import (
 	"context"
-	"log"
-	"time"
-
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"time"
 )
 
 type MongoClient struct {
 	options *options.ClientOptions
 }
 
-func NewMongoClient(uri string) (IDatabaseInterfaceProtocol) {
+func NewMongoClient(uri string) IDatabaseInterfaceProtocol {
 	return &MongoClient{
 		options: options.Client().ApplyURI(uri),
 	}
 }
 
-func (conn *MongoClient) Connect() (*mongo.Client) {
+func (conn *MongoClient) Connect() *mongo.Client {
 	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
 
@@ -37,6 +36,3 @@ func (conn *MongoClient) Disconnect(client *mongo.Client) {
 		panic(err)
 	}
 }
-
-
-
