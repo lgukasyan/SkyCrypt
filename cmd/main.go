@@ -5,8 +5,10 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	app "github.com/lgukasyan/SkyCrypt/internal/app/router"
 	"github.com/lgukasyan/SkyCrypt/internal/infrastructure/mongodb"
 	"github.com/lgukasyan/SkyCrypt/pkg/config"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func main() {
@@ -14,11 +16,17 @@ func main() {
 	config.LoadEnv()
 
 	// Connect & disconnect database
-	var options mongodb.IDatabaseInterfaceProtocol = mongodb.NewMongoClient(os.Getenv("MONGODB_URI"))
-	defer options.Disconnect(options.Connect())
+	var client mongodb.IDatabaseInterfaceProtocol = mongodb.NewMongoClient(os.Getenv("MONGODB_URI"), os.Getenv("DB_NAME"))
+	defer client.Disconnect()
+
+	// Get Database
+	var db *mongo.Database = client.GetDatabase()
 
 	// Router API
 	var router *gin.Engine = gin.Default()
+
+	// Setup routes
+	app.UserRouter(router, db)
 
 	// Endpoints
 	router.GET("/ping", func(ctx *gin.Context) {
