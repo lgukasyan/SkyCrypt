@@ -7,6 +7,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	domain "github.com/lgukasyan/SkyCrypt/domain/user"
 	"github.com/lgukasyan/SkyCrypt/internal/app/service"
+	"github.com/lgukasyan/SkyCrypt/internal/response"
 )
 
 type UserController struct {
@@ -21,15 +22,32 @@ func NewUserController(userService service.IUserServiceInterface) *UserControlle
 
 func (uc *UserController) SignUp(ctx *gin.Context) {
 	var user domain.User
+
 	if err := jsoniter.ConfigFastest.NewDecoder(ctx.Request.Body).Decode(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(),})
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
 		return
 	}
 
 	if err := uc.userService.InsertUser(ctx, &user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(),})
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
 		return
 	}
 
-	ctx.JSON(200, gin.H{"user_data": user})
+	response.Write(ctx, http.StatusCreated, nil, "user created successfully.")
+}
+
+func (uc *UserController) SignIn(ctx *gin.Context) {
+	var user domain.UserSignIn
+
+	if err := jsoniter.ConfigFastest.NewDecoder(ctx.Request.Body).Decode(&user); err != nil {
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+
+	if err := uc.userService.FindAndValidate(ctx, &user); err != nil {
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+
+	response.Write(ctx, http.StatusCreated, nil, "user logged in successfully.")
 }
