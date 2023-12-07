@@ -16,4 +16,5 @@ func UserRouter(router *gin.Engine, db *mongo.Database) {
 
 	user := router.Group("/user")
 	user.POST("/sign-up", userController.SignUp)
+	user.POST("/sign-in", userController.SignIn)
 }

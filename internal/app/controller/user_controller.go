@@ -22,7 +22,7 @@ func NewUserController(userService service.IUserServiceInterface) *UserControlle
 
 func (uc *UserController) SignUp(ctx *gin.Context) {
 	var user domain.User
-	
+
 	if err := jsoniter.ConfigFastest.NewDecoder(ctx.Request.Body).Decode(&user); err != nil {
 		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
 		return
@@ -34,4 +34,20 @@ func (uc *UserController) SignUp(ctx *gin.Context) {
 	}
 
 	response.Write(ctx, http.StatusCreated, nil, "user created successfully.")
+}
+
+func (uc *UserController) SignIn(ctx *gin.Context) {
+	var user domain.UserSignIn
+
+	if err := jsoniter.ConfigFastest.NewDecoder(ctx.Request.Body).Decode(&user); err != nil {
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+
+	if err := uc.userService.FindAndValidate(ctx, &user); err != nil {
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+
+	response.Write(ctx, http.StatusCreated, nil, "user logged in successfully.")
 }
