@@ -22,13 +22,14 @@ func NewUserController(userService service.IUserServiceInterface) *UserControlle
 
 func (uc *UserController) SignUp(ctx *gin.Context) {
 	var user domain.User
+	
 	if err := jsoniter.ConfigFastest.NewDecoder(ctx.Request.Body).Decode(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(),})
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
 		return
 	}
 
 	if err := uc.userService.InsertUser(ctx, &user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(),})
+		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
 		return
 	}
 
