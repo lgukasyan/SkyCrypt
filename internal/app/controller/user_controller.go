@@ -7,6 +7,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	domain "github.com/lgukasyan/SkyCrypt/domain/user"
 	"github.com/lgukasyan/SkyCrypt/internal/app/service"
+	"github.com/lgukasyan/SkyCrypt/internal/response"
 )
 
 type UserController struct {
@@ -31,5 +32,5 @@ func (uc *UserController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"user_data": user})
+	response.Write(ctx, http.StatusCreated, nil, "user created successfully.")
 }
