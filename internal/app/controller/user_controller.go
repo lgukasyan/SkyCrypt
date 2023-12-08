@@ -7,6 +7,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	domain "github.com/lgukasyan/SkyCrypt/domain/user"
 	"github.com/lgukasyan/SkyCrypt/internal/app/service"
+	"github.com/lgukasyan/SkyCrypt/internal/infrastructure/auth"
 	"github.com/lgukasyan/SkyCrypt/internal/response"
 )
 
@@ -44,10 +45,24 @@ func (uc *UserController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	if err := uc.userService.FindAndValidate(ctx, &user); err != nil {
+	doc, err := uc.userService.FindAndValidate(ctx, &user)
+	if err != nil {
 		response.Write(ctx, http.StatusBadRequest, nil, err.Error())
 		return
 	}
 
-	response.Write(ctx, http.StatusCreated, nil, "user logged in successfully.")
+	var token domain.Token
+	token.AccessToken, err = auth.EncodeJWT(doc.Id, 15)
+	if err != nil {
+		response.Write(ctx, http.StatusInternalServerError, nil, err.Error())
+		return
+	}
+
+	token.RefreshToken, err = auth.EncodeJWT(doc.Id, 1440)
+	if err != nil {
+		response.Write(ctx, http.StatusInternalServerError, nil, err.Error())
+		return
+	}
+
+	response.Write(ctx, http.StatusCreated, token, "user logged in successfully.")
 }
