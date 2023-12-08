@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	app "github.com/lgukasyan/SkyCrypt/internal/app/router"
+	"github.com/lgukasyan/SkyCrypt/internal/infrastructure/auth"
 	"github.com/lgukasyan/SkyCrypt/internal/infrastructure/mongodb"
 	"github.com/lgukasyan/SkyCrypt/pkg/config"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,6 +19,9 @@ func main() {
 	// Connect & disconnect database
 	var client mongodb.IDatabaseInterfaceProtocol = mongodb.NewMongoClient(os.Getenv("MONGODB_URI"), os.Getenv("DB_NAME"))
 	defer client.Disconnect()
+
+	// Set JWT Key
+	auth.SECRET_KEY = os.Getenv("JWT_SECRET_KEY")
 
 	// Get Database
 	var db *mongo.Database = client.GetDatabase()
