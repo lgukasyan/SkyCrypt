@@ -18,7 +18,7 @@ func EncodeJWT(id primitive.ObjectID, minutes time.Duration) (*string, error) {
 	var claims *Claims = &Claims{
 		Id: id,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(minutes * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(minutes * time.Minute).Unix(),
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "skycrypt-api",
 		},
