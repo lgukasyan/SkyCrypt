@@ -13,7 +13,7 @@ type ResponseDetails struct {
 }
 
 func Write(ctx *gin.Context, statusCode int, data interface{}, msg string) {
-	ctx.JSON(statusCode, &ResponseDetails{
+	ctx.AbortWithStatusJSON(statusCode, &ResponseDetails{
 		Data:    data,
 		Message: msg,
 		Method:  ctx.Request.Method,
