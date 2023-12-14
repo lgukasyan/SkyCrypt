@@ -1,8 +1,8 @@
 package auth
 
 import (
+	"errors"
 	"time"
-
 	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -32,4 +32,24 @@ func EncodeJWT(id primitive.ObjectID, minutes time.Duration) (*string, error) {
 	}
 
 	return &tokenStr, nil
+}
+
+func ValidateJWT(tokenString string) (*jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+
+		return []byte(SECRET_KEY), nil 
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		return &claims, nil
+	}
+	
+	return nil, errors.New("invalid token")
 }
